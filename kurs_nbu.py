@@ -75,40 +75,40 @@ def get_kurs(date = today):
         
 def convert_cur(date = today, cur2 = "UAH"):
     ver, day, cur_dic = get_cur_dic(date)
+    base_codes = ", ".join([str(i) + " - " + el for i, el in enumerate(base)])
+    full_list = [key + " " + val[0] for key, val in cur_dic.items()]
+    
+    def get_cur(n):
+        msg = f"Валюта {n} (m - повний список валют, s - короткий, Enter - за умовчанням): "
+        cn = input(msg).upper()
+        while cn == "M" or cn == "S":
+            if cn == "M":
+                print(*full_list, sep="\n")
+            elif cn == "S":
+                print(base_codes)
+            cn = input(msg).upper()
+        if cn == "" and n == 1:
+            cn = "USD"
+        elif cn == "" and n == 2:
+            cn = "UAH"
+        if cn.isdigit():
+            if int(cn) in range(len(base)):
+                cn = base[int(cn)]
+        return cn
+        
     print("З валюти?")
-    msg_c = ", ".join([str(i) + " - " + el for i, el in enumerate(base)])
-    cn = input("l - повний список валют, Enter - короткий список: ").upper()
-    if cn == "L":
-        print(*cur_dic)
-        cn = input("Валюта: ").upper()
-        if cn == "":
-            cn = "USD"
-    elif cn == "":
-        print(msg_c)
-        cn = input("Валюта:").upper()
-        if cn == "":
-            cn = "USD"
-    cur = (base[int(cn)] if cn.isdigit() else cn)
-    if cur not in cur_dic:
-        return "Валюти " + cur + " немає."
-    print(cur)
+    cur1 = get_cur(1)
+    while cur1 not in cur_dic:
+        print(f"Валюти {cur1} немає.")
+        cur1 = get_cur(1)
+    print(cur1, cur_dic[cur1][0])
     if cur2 != "UAH":
         print("В яку валюту?")
-        cn2 = input("m - повний список валют, Enter - короткий список: ").upper()
-        if cn2.startswith("M"):
-            print(*cur_dic)
-            cn2 = input("Валюта:").upper()
-            if cn2 == "":
-                cn2 = "UAH"
-        elif cn2 == "":
-            print(msg_c)
-            cn2 = input("Валюта: ").upper()
-            if cn2 == "":
-                cn2 = "UAH"
-        cur2 = (base[int(cn2)] if cn2.isdigit() else cn2)
-    if cur2 not in cur_dic:
-        return "Валюти " + cur + " немає."
-    print(cur2)
+        cur2 = get_cur(2)
+        while cur2 not in cur_dic:
+            print(f"Валюти {cur2} немає.")
+            cur2 = get_cur(2)
+    print(cur2, cur_dic[cur2][0])
     while True:
         try:
             x = input("Сума, через крапку, Enter - 100: ")
@@ -118,9 +118,9 @@ def convert_cur(date = today, cur2 = "UAH"):
         except ValueError:
             continue
         break
-    result = float((cur_dic[cur][1] * dc(x)) / cur_dic[cur2][1])
+    result = float((cur_dic[cur1][1] * dc(x)) / cur_dic[cur2][1])
     print(ver, day)
-    return str(x) + " " + cur + " = " + str(round(result, 2)) + " " + cur2
+    return str(x) + " " + cur1 + " = " + str(round(result, 2)) + " " + cur2
 
 def response_to_com(com):
     if com == "0":
