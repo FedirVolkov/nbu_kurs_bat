@@ -1,10 +1,10 @@
-from datetime import date
+from datetime import datetime
 import requests
 from decimal import Decimal as dc
-today = date.today().strftime("%d.%m.%Y")
+today = datetime.today().strftime("%d.%m.%Y")
 base = ["USD", "EUR", "RUB", "PLN", "CZK", "GBP", "CAD", "CNY"]
 acts = {"0": "список команд", "1": "репорт в файл", "2": "курс валюти", "3": "конвертер в гривню", \
-        "4": "конвертер", "5": "репорт на дату", "6": "повний репорт", "Enter": "завершення"}
+        "4": "конвертер", "5": "репорт на дату", "6": "повний репорт", "7": "дивитись репорти", "Enter": "завершення"}
 help = ", ".join(f"{k} - {v}" for k, v in acts.items())
 
 def try_func(function, arg1 = False, arg2 = False):
@@ -58,6 +58,43 @@ def report_in_file(date = today):
     rates.close()
     print(ver, day)
     return "Репорт збережено в rates.txt."
+
+def read_rates(date):
+    rates = open("rates.txt", "r")
+    text = rates.read()
+    rates.close()
+    format_read = input("d - на дату, Enter - останнi репорти: ")
+    if format_read:
+        while True:
+            try:
+                date_read = input("Дата, формат - дд.мм.рррр, Enter - зараз: ")
+                if date_read == "":
+                    date_text = date
+                    break
+                date_text = datetime.strptime(date_read, "%d.%m.%Y").date().strftime("%d.%m.%Y")
+                if date_text not in text:
+                    print("Такої дати немає!")
+                    continue
+            except ValueError:
+                print("Невiрне значення!")
+                continue
+            break
+        start = text.find(date_text) - 9
+        end = text.find("Verified", start + 1) - 2
+        return text[start:end]
+    else:
+        while True:
+            try:
+                n = input("Скiльки останнiх репортiв вiдобразити? (Enter - 2, 0 - всi): ")
+                n = int(n) if n else 2
+            except ValueError:
+                print("Невiрне значення!")
+                continue
+            break
+        rates = open("rates.txt", "r")
+        rates_list= rates.readlines()
+        rates.close()
+        return "".join(rates_list[-(n*12):])
     
 def get_kurs(date = today):
     ver, day, cur_dic = get_cur_dic(date)
@@ -67,7 +104,7 @@ def get_kurs(date = today):
             print("Валюти" + cur + "немає.")
         else:
             print(*cur_dic)
-        cur = input("Валюта, Enter - повний список, exit - вихід: ").upper()
+        cur = input("Валюта, Enter - повний список, exit - вихiд: ").upper()
         if cur in "EXIT":
             return "\n"
     else:
@@ -139,13 +176,16 @@ def response_to_com(com):
             print(try_func(daily_report, date))
         elif com == "6":
             print(try_func(daily_report, date, True))
+    elif com == "7":
+        print("Дiя:", acts[com])
+        print(try_func(read_rates))
     elif com == "Enter":
         print("Натиснути на Enter, а не ввести це слово!")
     else:
         print("Не знаю, що робити.")
             
             
-act = input("Enter - курс валют зараз, 0 - список команд: ")
+act = input("Команда, Enter - курс валют зараз: ")
 if act == "":
     print(daily_report())
 elif act in acts:
