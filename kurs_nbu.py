@@ -3,8 +3,9 @@ import requests
 from decimal import Decimal as dc
 today = datetime.today().strftime("%d.%m.%Y")
 base = ["USD", "EUR", "RUB", "PLN", "CZK", "GBP", "CAD", "CNY"]
-acts = {"0": "список команд", "1": "репорт в файл", "2": "курс валюти", "3": "конвертер в гривню", \
-        "4": "конвертер", "5": "репорт на дату", "6": "повний репорт", "7": "дивитись репорти", "Enter": "завершення"}
+acts = {"0": "список команд", "1": "репорт в файл", "2": "курс валюти", \
+"3": "конвертер в гривню", "4": "конвертер", "5": "репорт на дату", \
+"6": "повний репорт", "7": "дивитись репорти", "Enter": "завершення"}
 help = ", ".join(f"{k} - {v}" for k, v in acts.items())
 
 def try_func(function, arg1 = False, arg2 = False):
@@ -16,7 +17,8 @@ def try_func(function, arg1 = False, arg2 = False):
             print(function(arg1))
         return "Добре!"
     except Exception as exception:
-        return "try_func report: " + "\nError name: " + str(type(exception).__name__)+"\nException: " + str(exception)
+        return "try_func report: " + "\nError name: " \
+        + str(type(exception).__name__)+"\nException: " + str(exception)
         
 def get_cur_dic(date = today):
     url = 'https://bank.gov.ua/ua/markets/exchangerates?date=' + date + '&period=daily'
@@ -42,9 +44,11 @@ def get_cur_dic(date = today):
 def daily_report(date = today, full = False):
     ver, day, cur_dic = get_cur_dic(date)
     if full:
-        daily_report = [ver, day] + [key + " " + val[0] + " " + str(val[1]) for key, val in cur_dic.items()]
+        daily_report = [ver, day] + \
+        [key + " " + val[0] + " " + str(val[1]) for key, val in cur_dic.items()]
     else:
-        daily_report = [ver, day] + [cur + " " + str(cur_dic[cur][1]) for cur in base]
+        daily_report = [ver, day] + \
+        [cur + " " + str(cur_dic[cur][1]) for cur in base]
     return "\n".join(daily_report)
     
 def report_in_file(date = today):
@@ -177,7 +181,6 @@ def response_to_com(com):
         elif com == "6":
             print(try_func(daily_report, date, True))
     elif com == "7":
-        print("Дiя:", acts[com])
         print(try_func(read_rates))
     elif com == "Enter":
         print("Натиснути на Enter, а не ввести це слово!")
