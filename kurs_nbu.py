@@ -103,16 +103,16 @@ def read_rates(date):
 def get_kurs(date = today):
     ver, day, cur_dic = get_cur_dic(date)
     cur = input("Валюта, Enter - повний список: ").upper()
-    while cur not in cur_dic or cur == "":
+    while (cur not in cur_dic) or cur == "":
         if cur:
-            print("Валюти" + cur + "немає.")
+            print("Валюти " + cur + " немає.")
         else:
-            print(*cur_dic)
+            for key, val in cur_dic.items():
+                print(key + " " + val[0])
         cur = input("Валюта, Enter - повний список, exit - вихiд: ").upper()
-        if cur in "EXIT":
+        if cur.startswith("EX"):
             return "\n"
-    else:
-        return str(cur_dic[cur][1]) + " гривень за один " + cur_dic[cur][0] + "."
+    return str(cur_dic[cur][1]) + " гривень за одиницю валюти " + cur_dic[cur][0] + "."
         
 def convert_cur(date = today, cur2 = "UAH"):
     ver, day, cur_dic = get_cur_dic(date)
@@ -168,7 +168,7 @@ def response_to_com(com):
         print(help)
     elif com == "1":
         print(try_func(report_in_file))
-    elif com in (str(i) for i in range(2,7)):
+    elif com in "23456":
         date = input("На дату? Формат - дд.мм.рррр. Enter - зараз: ")
         if com == "2":
             print(try_func(get_kurs, date))
